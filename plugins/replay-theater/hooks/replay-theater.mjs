@@ -364,8 +364,7 @@ function trailing(ui, s, n, isCurrent) {
 
 function secondaryOf(s) {
   if (s.kind === "edit" || s.kind === "read") return dirName(s.file);
-  if (s.kind === "command") return s.title === s.detail ? "" : clip(firstLine(s.detail), 90);
-  return s.detail || "";
+  return "";
 }
 
 function bodyOf(ui, $, step) {
@@ -429,7 +428,7 @@ function bodyOf(ui, $, step) {
 
 function kindLabel(s) {
   if (s.kind === "edit") return s.note === "new file" ? "New file" : s.note === "rewrite" ? "Rewrite" : s.note === "replace all" ? "Edit · replace all" : s.note ? `Edit · ${s.note}` : "Edit";
-  return { command: "Command", read: "Read", search: "Search", web: "Web", agent: "Agent" }[s.kind] || s.tool;
+  return { command: "Command", read: "Read", search: "Search", web: "Web", agent: "Agent" }[s.kind] || (String(s.tool).startsWith("mcp__") ? "MCP" : s.tool);
 }
 
 function desktopView($, e, go) {
@@ -529,7 +528,8 @@ function desktopView($, e, go) {
 
   const c = countChanges(step.diff);
   const meta = [
-    kindLabel(step),
+    // A tool with no kind of its own is labelled by its name, which the title already shows.
+    kindLabel(step) === String(step.title ?? step.tool) ? "" : kindLabel(step),
     step.kind === "edit" || step.kind === "read" ? dirName(step.file) : "",
     step.ms >= 1000 ? duration(step.ms) : "",
   ].filter(Boolean).join(" · ");
